@@ -6,7 +6,7 @@
 #define R_FAIL 1
 #define THROW_EXCEPTION(x) {}
 
-static System::Reflection::MethodInfo^ Compile(System::String^% code) {
+static System::Reflection::MethodInfo^ Compile(System::String^% code, array<System::String^>^ additionalReferences) {
   System::CodeDom::Compiler::CompilerParameters^ CompilerParams
     = gcnew System::CodeDom::Compiler::CompilerParameters();
   System::String^ outputDirectory = System::IO::Directory::GetCurrentDirectory();
@@ -16,9 +16,10 @@ static System::Reflection::MethodInfo^ Compile(System::String^% code) {
   CompilerParams->GenerateExecutable = false;
   CompilerParams->CompilerOptions = "/optimize";
 
-  // System::String[] references = { "System.dll" };
-  array<System::String^>^ references = { "System.dll", "System.Windows.Forms.dll" };
-  CompilerParams->ReferencedAssemblies->AddRange(references);
+  CompilerParams->ReferencedAssemblies->Add("System.dll");
+  if (additionalReferences != nullptr) {
+    CompilerParams->ReferencedAssemblies->AddRange(additionalReferences);
+  }
 
   Microsoft::CSharp::CSharpCodeProvider^ provider = gcnew Microsoft::CSharp::CSharpCodeProvider();
   System::CodeDom::Compiler::CompilerResults^ compile = provider->CompileAssemblyFromSource(CompilerParams, code);
@@ -60,9 +61,9 @@ static void Run(System::Reflection::MethodInfo^ methInfo) {
   }
 }
 
-static void CompileAndRun(System::String^% code) {
-  Run(Compile(code));
-}
+// static void CompileAndRun(System::String^% code) {
+//   Run(Compile(code));
+// }
 
 int CoreClrInit(char* source, size_t sourceLen) {
   DBG("CoreClrInit()");
@@ -77,6 +78,7 @@ int CoreClrInit(char* source, size_t sourceLen) {
   System::Console::WriteLine("typeName " + typeName);
   System::Console::WriteLine("mSource " + mSource);
 
-  Run(Compile(mSource));
+  array<System::String^>^ references = { "System.Windows.Forms.dll" };
+  Run(Compile(mSource, references));
   return R_OK;
 }
