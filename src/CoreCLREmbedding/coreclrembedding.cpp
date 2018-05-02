@@ -346,7 +346,7 @@ HRESULT CoreClrEmbedding::Initialize(BOOL debugMode)
 		pal::string_t sdkDirectory;
 
 		fx_muxer_t::resolve_sdk_dotnet_path(dotnetDirectory, &sdkDirectory);
-		
+
 		pal::string_t dotnetAssemblyPath(sdkDirectory);
 		append_path(&dotnetAssemblyPath, _X("dotnet.dll"));
 
@@ -624,7 +624,7 @@ HRESULT CoreClrEmbedding::Initialize(BOOL debugMode)
 	{
 		context.applicationDirectory = currentDirectoryCstr.data();
 	}
-	
+
 	trace::info(_X("CoreClrEmbedding::Initialize - Runtime directory: %s"), coreClrDirectory.c_str());
 	trace::info(_X("CoreClrEmbedding::Initialize - Application directory: %s"), edgeAppDir.c_str());
 
