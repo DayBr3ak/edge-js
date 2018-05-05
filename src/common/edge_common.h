@@ -1,15 +1,16 @@
 #ifndef __EDGE_COMMON_H
 #define __EDGE_COMMON_H
 
-#include <v8.h>
-#include <node.h>
-#include <node_buffer.h>
-#include <uv.h>
-#include <nan.h>
+// #include <v8.h>
+// #include <node.h>
+// #include <node_buffer.h>
+// #include <uv.h>
+// #include <nan.h>
+#include <node_api.h>
 #include <stdarg.h>
 #include <stdio.h>
 
-using namespace v8;
+typedef int BOOL;
 
 // From http://stackoverflow.com/questions/5919996/how-to-detect-reliably-mac-os-x-ios-linux-windows-in-c-preprocessor
 #ifdef _WIN64
@@ -47,7 +48,6 @@ using namespace v8;
 #undef TRUE
 #endif
 #define TRUE  1
-typedef int BOOL;
 #endif
 
 #ifdef EDGE_PLATFORM_WINDOWS
@@ -66,49 +66,49 @@ extern BOOL enableMarshalEnumAsInt;
 
 typedef void (*uv_async_edge_cb)(void* data);
 
-typedef struct uv_edge_async_s {
-    uv_async_t uv_async;
-    uv_async_edge_cb action;
-    void* data;
-    bool singleton;
-} uv_edge_async_t;
+// typedef struct uv_edge_async_s {
+//     uv_async_t uv_async;
+//     uv_async_edge_cb action;
+//     void* data;
+//     bool singleton;
+// } uv_edge_async_t;
 
-class V8SynchronizationContext {
-private:
+// class V8SynchronizationContext {
+// private:
 
-    static unsigned long v8ThreadId;
-    static unsigned long GetCurrentThreadId();
+//     static unsigned long v8ThreadId;
+//     static unsigned long GetCurrentThreadId();
 
-public:
+// public:
 
-    // The node process will not exit until ExecuteAction or CancelAction had been called for all actions
-    // registered by calling RegisterAction on V8 thread. Actions registered by calling RegisterAction
-    // on CLR thread do not prevent the process from exiting.
-    // Calls from JavaScript to .NET always call RegisterAction on V8 thread before invoking .NET code.
-    // Calls from .NET to JavaScript call RegisterAction either on CLR or V8 thread, depending on
-    // whether .NET code executes synchronously on V8 thread it strarted running on.
-    // This means that if any call of a .NET function from JavaScript is in progress, the process won't exit.
-    // It also means that existence of .NET proxies to JavaScript functions in the CLR does not prevent the
-    // process from exiting.
-    // In this model, JavaScript owns the lifetime of the process.
+//     // The node process will not exit until ExecuteAction or CancelAction had been called for all actions
+//     // registered by calling RegisterAction on V8 thread. Actions registered by calling RegisterAction
+//     // on CLR thread do not prevent the process from exiting.
+//     // Calls from JavaScript to .NET always call RegisterAction on V8 thread before invoking .NET code.
+//     // Calls from .NET to JavaScript call RegisterAction either on CLR or V8 thread, depending on
+//     // whether .NET code executes synchronously on V8 thread it strarted running on.
+//     // This means that if any call of a .NET function from JavaScript is in progress, the process won't exit.
+//     // It also means that existence of .NET proxies to JavaScript functions in the CLR does not prevent the
+//     // process from exiting.
+//     // In this model, JavaScript owns the lifetime of the process.
 
-    static uv_edge_async_t* uv_edge_async;
-    static uv_sem_t* funcWaitHandle;
+//     static uv_edge_async_t* uv_edge_async;
+//     static uv_sem_t* funcWaitHandle;
 
-    static void Initialize();
-    static uv_edge_async_t* RegisterAction(uv_async_edge_cb action, void* data);
-    static void ExecuteAction(uv_edge_async_t* uv_edge_async);
-    static void CancelAction(uv_edge_async_t* uv_edge_async);
-    static void Unref(uv_edge_async_t* uv_edge_async);
-};
+//     static void Initialize();
+//     static uv_edge_async_t* RegisterAction(uv_async_edge_cb action, void* data);
+//     static void ExecuteAction(uv_edge_async_t* uv_edge_async);
+//     static void CancelAction(uv_edge_async_t* uv_edge_async);
+//     static void Unref(uv_edge_async_t* uv_edge_async);
+// };
 
 class CallbackHelper {
 private:
-    static Nan::Callback* tickCallback;
+    static napi_ref callbackRef;
 
 public:
-    static void Initialize();
-    static void KickNextTick();
+    static napi_status Initialize(napi_env env);
+    static napi_status KickNextTick(napi_env env);
 };
 
 typedef enum taskStatus
@@ -123,8 +123,8 @@ typedef enum taskStatus
     TaskStatusFaulted = 7
 } TaskStatus;
 
-v8::Local<Value> throwV8Exception(v8::Local<Value> exception);
-v8::Local<Value> throwV8Exception(const char* format, ...);
+// v8::Local<Value> throwV8Exception(v8::Local<Value> exception);
+// v8::Local<Value> throwV8Exception(const char* format, ...);
 
 bool HasEnvironmentVariable(const char* variableName);
 

@@ -30,115 +30,117 @@ using namespace System::Threading::Tasks;
 using namespace System::Threading;
 using namespace System::Web::Script::Serialization;
 
-v8::Local<v8::String> stringCLR2V8(System::String^ text);
-System::String^ stringV82CLR(v8::Local<v8::String> text);
-System::String^ stringV82CLR(v8::String::Utf8Value& utf8text);
-System::String^ exceptionV82stringCLR(v8::Local<v8::Value> exception);
+// v8::Local<v8::String> stringCLR2V8(System::String^ text);
+// System::String^ stringV82CLR(v8::Local<v8::String> text);
+// System::String^ stringV82CLR(v8::String::Utf8Value& utf8text);
+// System::String^ exceptionV82stringCLR(v8::Local<v8::Value> exception);
 
-typedef struct clrActionContext {
-    gcroot<System::Action^> action;
-    static void ActionCallback(void* data);
-} ClrActionContext;
+// typedef struct clrActionContext {
+//     gcroot<System::Action^> action;
+//     static void ActionCallback(void* data);
+// } ClrActionContext;
 
-ref class ClrFuncInvokeContext {
-private:
-    Nan::Callback* callback;
-    uv_edge_async_t* uv_edge_async;
+// ref class ClrFuncInvokeContext {
+// private:
+//     Nan::Callback* callback;
+//     uv_edge_async_t* uv_edge_async;
 
-    void DisposeCallback();
+//     void DisposeCallback();
 
-public:
+// public:
 
-    property System::Object^ Payload;
-    property System::Threading::Tasks::Task<System::Object^>^ Task;
-    property bool Sync;
+//     property System::Object^ Payload;
+//     property System::Threading::Tasks::Task<System::Object^>^ Task;
+//     property bool Sync;
 
-    ClrFuncInvokeContext(v8::Local<v8::Value> callbackOrSync);
+//     ClrFuncInvokeContext(v8::Local<v8::Value> callbackOrSync);
 
-    void CompleteOnCLRThread(System::Threading::Tasks::Task<System::Object^>^ task);
-    void CompleteOnV8ThreadAsynchronous();
-    v8::Local<v8::Value> CompleteOnV8Thread();
-    void InitializeAsyncOperation();
-};
+//     void CompleteOnCLRThread(System::Threading::Tasks::Task<System::Object^>^ task);
+//     void CompleteOnV8ThreadAsynchronous();
+//     v8::Local<v8::Value> CompleteOnV8Thread();
+//     void InitializeAsyncOperation();
+// };
 
-ref class NodejsFunc {
-public:
+// ref class NodejsFunc {
+// public:
 
-    property Nan::Persistent<v8::Function>* Func;
+//     property Nan::Persistent<v8::Function>* Func;
 
-    NodejsFunc(v8::Local<v8::Function> function);
-    ~NodejsFunc();
-    !NodejsFunc();
+//     NodejsFunc(v8::Local<v8::Function> function);
+//     ~NodejsFunc();
+//     !NodejsFunc();
 
-    System::Threading::Tasks::Task<System::Object^>^ FunctionWrapper(System::Object^ payload);
-};
+//     System::Threading::Tasks::Task<System::Object^>^ FunctionWrapper(System::Object^ payload);
+// };
 
-ref class PersistentDisposeContext {
-private:
-    System::IntPtr ptr;
-public:
-    PersistentDisposeContext(Nan::Persistent<v8::Value>* handle);
-    void CallDisposeOnV8Thread();
-};
+// ref class PersistentDisposeContext {
+// private:
+//     System::IntPtr ptr;
+// public:
+//     PersistentDisposeContext(Nan::Persistent<v8::Value>* handle);
+//     void CallDisposeOnV8Thread();
+// };
 
-ref class NodejsFuncInvokeContext;
+// ref class NodejsFuncInvokeContext;
 
-typedef struct nodejsFuncInvokeContextWrap {
-    gcroot<NodejsFuncInvokeContext^> context;
-} NodejsFuncInvokeContextWrap;
+// typedef struct nodejsFuncInvokeContextWrap {
+//     gcroot<NodejsFuncInvokeContext^> context;
+// } NodejsFuncInvokeContextWrap;
 
-ref class NodejsFuncInvokeContext {
-private:
-    NodejsFunc^ functionContext;
-    System::Object^ payload;
-    System::Exception^ exception;
-    System::Object^ result;
-    NodejsFuncInvokeContextWrap* wrap;
+// ref class NodejsFuncInvokeContext {
+// private:
+//     NodejsFunc^ functionContext;
+//     System::Object^ payload;
+//     System::Exception^ exception;
+//     System::Object^ result;
+//     NodejsFuncInvokeContextWrap* wrap;
 
-    void Complete();
+//     void Complete();
 
-public:
+// public:
 
-    property System::Threading::Tasks::TaskCompletionSource<System::Object^>^ TaskCompletionSource;
+//     property System::Threading::Tasks::TaskCompletionSource<System::Object^>^ TaskCompletionSource;
 
-    NodejsFuncInvokeContext(
-        NodejsFunc^ functionContext, System::Object^ payload);
-    ~NodejsFuncInvokeContext();
-    !NodejsFuncInvokeContext();
+//     NodejsFuncInvokeContext(
+//         NodejsFunc^ functionContext, System::Object^ payload);
+//     ~NodejsFuncInvokeContext();
+//     !NodejsFuncInvokeContext();
 
-    void CompleteWithError(System::Exception^ exception);
-    void CompleteWithResult(v8::Local<v8::Value> result);
-    void CallFuncOnV8Thread();
-};
+//     void CompleteWithError(System::Exception^ exception);
+//     void CompleteWithResult(v8::Local<v8::Value> result);
+//     void CallFuncOnV8Thread();
+// };
 
-ref class ClrFuncReflectionWrap {
-private:
-    System::Object^ instance;
-    MethodInfo^ invokeMethod;
+// ref class ClrFuncReflectionWrap {
+// private:
+//     System::Object^ instance;
+//     MethodInfo^ invokeMethod;
 
-    ClrFuncReflectionWrap();
+//     ClrFuncReflectionWrap();
 
-public:
+// public:
 
-    static ClrFuncReflectionWrap^ Create(Assembly^ assembly, System::String^ typeName, System::String^ methodName);
-    System::Threading::Tasks::Task<System::Object^>^ Call(System::Object^ payload);
-};
+//     static ClrFuncReflectionWrap^ Create(Assembly^ assembly, System::String^ typeName, System::String^ methodName);
+//     System::Threading::Tasks::Task<System::Object^>^ Call(System::Object^ payload);
+// };
 
 ref class ClrFunc {
 private:
     System::Func<System::Object^,System::Threading::Tasks::Task<System::Object^>^>^ func;
-
     ClrFunc();
 
-    static v8::Local<v8::Object> MarshalCLRObjectToV8(System::Object^ netdata);
+    // static v8::Local<v8::Object> MarshalCLRObjectToV8(System::Object^ netdata);
 
 public:
-    static NAN_METHOD(Initialize);
-    static v8::Local<v8::Function> Initialize(System::Func<System::Object^,System::Threading::Tasks::Task<System::Object^>^>^ func);
-    v8::Local<v8::Value> Call(v8::Local<v8::Value> payload, v8::Local<v8::Value> callback);
-    static v8::Local<v8::Value> MarshalCLRToV8(System::Object^ netdata);
-    static v8::Local<v8::Value> MarshalCLRExceptionToV8(System::Exception^ exception);
-    static System::Object^ MarshalV8ToCLR(v8::Local<v8::Value> jsdata);
+    static napi_status Initialize(napi_env env, napi_callback_info info);
+    static napi_status Initialize(
+        napi_env env,
+        System::Func<System::Object^,
+        System::Threading::Tasks::Task<System::Object^>^>^ func, napi_ref *ref);
+    // v8::Local<v8::Value> Call(v8::Local<v8::Value> payload, v8::Local<v8::Value> callback);
+    // static v8::Local<v8::Value> MarshalCLRToV8(System::Object^ netdata);
+    // static v8::Local<v8::Value> MarshalCLRExceptionToV8(System::Exception^ exception);
+    // static System::Object^ MarshalV8ToCLR(v8::Local<v8::Value> jsdata);
 };
 
 typedef struct clrFuncWrap {
